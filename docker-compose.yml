@@ -1,0 +1,76 @@
+version: "3.3"
+services:
+  mysqlTest:
+    image: mysql:latest
+    networks:
+      - networkTest
+    build: .
+    ports:
+      - "3307:3306"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=springapp
+      - MYSQL_PASSWORD=springapp
+      - MYSQL_DATABASE=db_devops
+#    healthcheck:
+#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+
+  spring:
+    image: springb
+    networks: 
+      - networkTest
+    build: .
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mysqlTest
+    environment:
+      - SPRING_PROFILES_ACTIVE= mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqlTest:3306/db_devops?useSSL=false&allowPublicKeyRetrieval=true
+
+      # - SPRING_DATASOURCE_USERNAME=root
+      # - SPRING_DATASOURCE_PASSWORD=
+      # - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+
+networks:
+  networkTest: {}
+
+# version: "2.2"
+# services:
+#   mysqlTest:
+#     image: mysql:latest
+#     build: .
+#     networks:
+#       - networkTest
+#     ports:
+#       - "3307:3306"
+#     restart: always
+#     environment:
+#       - MYSQL_ROOT_PASSWORD=
+#       - MYSQL_ALLOW_EMPTY_PASSWORD=true
+#       - MYSQL_USER=root
+#       - MYSQL_PASSWORD=
+#       - MYSQL_DATABASE=db_devops
+#     healthcheck:
+#       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#   spring:
+#     restart: always
+#     depends_on:
+#       mysqlTest:
+#         condition: service_healthy
+#     image: spring:latest
+#     build: .
+#     networks: 
+#       - networkTest
+#     ports:
+#       - "8081:8081"
+#     environment:
+#       - SPRING_PROFILES_ACTIVE= mysql
+#       - SPRING_DATASOURCE_URL=jdbc:mysql://mysqlTest:3306/db_devops
+#       - SPRING_DATASOURCE_USERNAME=root
+#       - SPRING_DATASOURCE_PASSWORD=
+#       - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+
+# networks:
+#   networkTest: {}
